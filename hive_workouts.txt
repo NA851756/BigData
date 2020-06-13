@@ -1,0 +1,109 @@
+Hive Assignments
+Input Data
+Employee.txt - has the following columns - EmpID, Name, Band, DepartmentID, Salary
+Employee.txt
+A1001,Ramesh,B1,IT,40000
+A1002,Ganesh,B2,HR,35000
+A1003,Latha,B1,HR,30000
+A1008,Shirish,B2, IT,55000
+A1009,Shibu,B2, MKTG,48000
+EmpProj.txt - has following columns – EmpID, projectID, year-week, EffortHrs
+EmpProj.txt
+A1001,IDW,201601,40
+A1002,IDW,201601,45
+A1003,GDW,201601,25
+A1008,IDW,201601,35
+A1009,GDW,201601,50
+A1001,IDW,201602,45
+A1002,IDW,201602,48
+A1003,GDW,201602,45
+A1008,IDW,201603,50
+A1009,GDW,201602,40
+A1001,IDW,201602,45
+A1002,IDW,201602,49
+A1003,GDW,201602,46
+A1009,GDW,201602,45
+A1002,CDW,201603,50
+A1002,CDW,201604,50
+Department.txt – has following columns – DepartmentID, Department Name
+Department.txt
+IT,Information Technology
+HR,Human Resources
+MKTG, Marketing
+Assignment 1: Create a Managed internal table
+a. Connect to Hive CLI
+b. Create a database called projectdb
+Sensitivity: Internal & Restricted
+c. Create a table employee to store data in employee.txt under projectdb
+d. List the structure of employee table
+Write the command used here:
+$ hive
+
+hive> create database projectdb;
+
+hive use projectdb;
+
+hive> create table if not exists projectdb.employee(EmpID string, Name string, Band string, DepartmentID string, Salary int) row format delimited fields terminated by ',';
+
+hive> describe projectdb.employee;
+
+e. List all storage parameters of employee table using describe command.
+Write the command used here:
+
+hive> describe formatted projectdb.employee;
+
+f. List data in employee table using select statement (make sure that the output has column header s)
+Write the commands used here:
+
+hive> set hive.cli.header.print=true;
+
+hive> select * from projectdb.employee;
+
+Assignment 2: Create External Table and execute Join query
+a. Copy file Department.txt to folder dept under your home directory in HDFS
+
+$ hadoop fs -mkdir /user/hduser/dept
+$ hadoop fs -put /home/hduser/Department.txt /user/hduser/dept/
+
+
+b. Create an external Hive table department to read data from dept folder in hdfs
+
+hive> create external table department(DepartmentID string, `Department Name` string) row format delimited fields terminated by ',' location '/user/hduser/dept';
+
+c. Write a join query to join department and employee tables and get the following output:
+Department Name, Total Salary
+
+hive> select `Department Name`,sum(salary) as `Total Salary' from employee e inner join dept d on e.DepartmentID = d.DepartmentID group by `Department Name`;
+
+d. How many mappers and reducers are executed in the map reduce job executed by Hive?
+Number of Mappers:
+Number of reducers:
+
+e. Display the explain plan for the join query using explain statement
+
+hive> explain select `Department Name`,sum(salary) as `Total Salary' from employee e inner join dept d on e.DepartmentID = d.DepartmentID group by `Department Name`;
+
+
+
+Assignment 3: Create a Partitioned Table and load data
+a. Create a table project_details partitioned by project ID and having following columns:
+EmpID, year-week, EffortHrs
+
+hive> create table project_details(EmpID string, year-week int, EffortHrs int) partitioned by (projectid string) row format delimited fields terminated by ',' stored as textfile;
+
+b. Load data from file empProj.txt into table project_details
+
+hive> create table project_details_stg(EmpID string, projectid string,year-week int, EffortHrs int) row format delimited fields terminated by ',' stored as textfile;
+
+hive> SET hive.exec.dynamic.partition = true;
+
+hive> SET hive.exec.dynamic.partition.mode = nonstrict;
+
+hive> insert overwrite table project_details partition(projectid ) select EmpID,year-week,EffortHrs,projectid  from project_details_stg 
+
+c. Write a select query to get total effort spent by empID = A1002 by project name.
+Required Output columns: projectID, empID, empName, totalEffort
+
+hive>select p.projectid,e.empID,e.empName,sum(EffortHrs) as totalEffort 
+from (select projectid,empID,empName,EffortHrs from employee where empID='A1002') e inner join project_details p on e.EmpID = p.EmpID 
+group by  p.projectid,e.empID,e.empName;

@@ -1,0 +1,70 @@
+a. Create a text file userdata.txt in your home directory having following lines using a text editor:
+I am working on a Linux Server.
+I am learning to work on Hadoop ecosystem.
+
+echo "I am working on a Linux Server." >> /home/hduser/userdata.txt
+echo "I am learning to work on Hadoop ecosystem." >> /home/hduser/userdata.txt
+
+
+b. Create a folder called training under your home directory in HDFS
+Write the command used here:
+
+hadoop fs -mkdir /user/hduser/training
+
+
+c. Create a folder called SampleData under training
+Write the command used here:
+
+hadoop fs -mkdir -p /user/hduser/training/SampleData
+
+d. Copy file userdata.txt to SampleData folder in HDFS
+Write the command used here:
+
+hadoop fs -put /home/hduser/userdata.txt /user/hduser/training/SampleData/
+
+e. Display the content of userdata.txt in hdfs using cat command
+Write the command used here:
+
+hadoop fs -cat /user/hduser/training/SampleData/userdata.txt
+
+f. Create another directory called SampleDataBak under training directory in HDFS
+Write the command used here:
+
+hadoop fs -mkdir -p /user/hduser/training/SampleDataBak
+
+g. Copy the file userdata.txt from SampleData folder to SampleDataBak:
+Write the command used here:
+
+hadoop fs -cp /user/hduser/training/SampleData/userdata.txt /user/hduser/training/SampleDataBak
+
+h. List all sub-folders and files under training folder in HDFS:
+Write the command used here:
+
+hadoop fs -ls -R /user/hduser/training
+
+i. Display the total disk space used by training directory
+Write the command used here:
+
+hadoop fs -du /user/hduser/training
+
+j. Display the disk space used by each folder under training directory
+Write the command used here:
+
+hadoop fs -df /user/hduser/training
+
+k. Change the Replication factor of training/SampleData/userdata.txt to 2
+Write the command used here:
+
+hadoop fs -setrep -w 2 /user/hduser/training/SampleData/userdata.txt
+
+l. Browse the training folder in HDFS using Web UI (localhost:50070) and note down the following:
+File / Folder Name Size Replication Block Size
+training
+userdata.txt (under SampleData)
+userdata.txt (under SampleDataBak)
+Sensitivity: Internal & Restricted
+
+m. Delete training folder along with all sub folders and files:
+Write the command used here:
+
+hadoop fs -rm -r 2 /user/hduser/training
